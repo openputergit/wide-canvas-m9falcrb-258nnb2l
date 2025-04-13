@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSA Visualization Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #FFF0F5;
+        }
+        .hello-kitty-gradient {
+            background: linear-gradient(135deg, #FF69B4, #FFB6C1);
+        }
+        .visualization-area {
+            min-height: 300px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-pink-600 flex items-center justify-center gap-2">
+                <i class="bi bi-diagram-3"></i>
+                DSA Visualization Assistant
+            </h1>
+            <p class="text-gray-600 mt-2">Visualize Data Structures and Algorithms concepts easily!</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto">
+            <!-- Input Section -->
+            <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input type="text" 
+                           id="promptInput" 
+                           placeholder="make a visualization for dsa concept: array sorting"
+                           class="flex-1 p-3 border border-pink-300 rounded-lg focus:outline-none focus:border-pink-500"
+                    >
+                    <button onclick="generateVisualization()" 
+                            class="hello-kitty-gradient text-white px-6 py-3 rounded-lg hover:opacity-90 transition-opacity">
+                        Visualize
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visualization Area -->
+            <div id="visualizationArea" class="visualization-area p-6">
+                <div class="text-center text-gray-500">
+                    <i class="bi bi-magic text-4xl"></i>
+                    <p class="mt-2">Your visualization will appear here</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateVisualization() {
+            const promptInput = document.getElementById('promptInput').value;
+            const visualizationArea = document.getElementById('visualizationArea');
+            
+            // Validate input format
+            if (!promptInput.toLowerCase().startsWith('make a visualization for dsa concept:')) {
+                alert('Please start your prompt with "make a visualization for dsa concept:"');
+                return;
+            }
+
+            // Extract the DSA concept
+            const concept = promptInput.toLowerCase().split('concept:')[1].trim();
+
+            // Simple visualization examples for different DSA concepts
+            const visualizations = {
+                'array sorting': createSortingVisualization,
+                'linked list': createLinkedListVisualization,
+                'binary tree': createBinaryTreeVisualization,
+                'stack': createStackVisualization,
+                'queue': createQueueVisualization
+            };
+
+            // Clear previous visualization
+            visualizationArea.innerHTML = '';
+
+            // Generate visualization based on concept
+            if (visualizations[concept]) {
+                visualizations[concept](visualizationArea);
+            } else {
+                visualizationArea.innerHTML = `
+                    <div class="text-center text-red-500">
+                        <i class="bi bi-exclamation-circle text-4xl"></i>
+                        <p class="mt-2">Sorry, visualization for "${concept}" is not available yet.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function createSortingVisualization(container) {
+            const array = [64, 34, 25, 12, 22, 11, 90];
+            container.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <h3 class="text-xl font-bold mb-4">Bubble Sort Visualization</h3>
+                    <div class="flex gap-2 h-48 items-end">
+                        ${array.map(value => `
+                            <div class="w-12 bg-pink-400 rounded-t-lg" 
+                                 style="height: ${value * 2}px"
+                                 data-value="${value}">
+                                <div class="text-center text-white">${value}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button onclick="bubbleSort()" class="mt-4 hello-kitty-gradient text-white px-4 py-2 rounded">
+                        Start Sorting
+                    </button>
+                </div>
+            `;
+        }
+
+        async function bubbleSort() {
+            const bars = document.querySelectorAll('[data-value]');
+            const array = Array.from(bars).map(bar => parseInt(bar.dataset.value));
+            
+            for (let i = 0; i < array.length; i++) {
+                for (let j = 0; j < array.length - i - 1; j++) {
+                    // Highlight comparing elements
+                    bars[j].classList.add('bg-yellow-400');
+                    bars[j + 1].classList.add('bg-yellow-400');
+                    
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    if (array[j] > array[j + 1]) {
+                        // Swap
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        bars[j].style.height = `${array[j] * 2}px`;
+                        bars[j].dataset.value = array[j];
+                        bars[j].querySelector('div').textContent = array[j];
+                        
+                        bars[j + 1].style.height = `${array[j + 1] * 2}px`;
+                        bars[j + 1].dataset.value = array[j + 1];
+                        bars[j + 1].querySelector('div').textContent = array[j + 1];
+                    }
+                    
+                    // Remove highlight
+                    bars[j].classList.remove('bg-yellow-400');
+                    bars[j + 1].classList.remove('bg-yellow-400');
+                    bars[j].classList.add('bg-pink-400');
+                    bars[j + 1].classList.add('bg-pink-400');
+                }
+            }
+        }
+
+        function createLinkedListVisualization(container) {
+            container.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-xl font-bold mb-4">Linked List Visualization</h3>
+                    <div class="flex justify-center items-center gap-2">
+                        <div class="bg-pink-100 p-4 rounded-lg">
+                            <div class="font-bold">Node 1</div>
+                            <div>Data: 5</div>
+                        </div>
+                        <i class="bi bi-arrow-right text-pink-400"></i>
+                        <div class="bg-pink-100 p-4 rounded-lg">
+                            <div class="font-bold">Node 2</div>
+                            <div>Data: 10</div>
+                        </div>
+                        <i class="bi bi-arrow-right text-pink-400"></i>
+                        <div class="bg-pink-100 p-4 rounded-lg">
+                            <div class="font-bold">Node 3</div>
+                            <div>Data: 15</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createBinaryTreeVisualization(container) {
+            container.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-xl font-bold mb-4">Binary Tree Visualization</h3>
+                    <div class="flex flex-col items-center">
+                        <div class="bg-pink-100 p-4 rounded-lg mb-4">Root: 10</div>
+                        <div class="flex justify-center gap-16">
+                            <div class="bg-pink-100 p-4 rounded-lg">Left: 5</div>
+                            <div class="bg-pink-100 p-4 rounded-lg">Right: 15</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createStackVisualization(container) {
+            container.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-xl font-bold mb-4">Stack Visualization</h3>
+                    <div class="flex flex-col items-center gap-2">
+                        <div class="bg-pink-100 p-4 rounded-lg w-32">Top: 30</div>
+                        <div class="bg-pink-100 p-4 rounded-lg w-32">20</div>
+                        <div class="bg-pink-100 p-4 rounded-lg w-32">Bottom: 10</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createQueueVisualization(container) {
+            container.innerHTML = `
+                <div class="text-center">
+                    <h3 class="text-xl font-bold mb-4">Queue Visualization</h3>
+                    <div class="flex justify-center items-center gap-2">
+                        <div class="bg-pink-100 p-4 rounded-lg">
+                            <div>Front</div>
+                            <div>10</div>
+                        </div>
+                        <div class="bg-pink-100 p-4 rounded-lg">
+                            <div>20</div>
+                        </div>
+                        <div class="bg-pink-100 p-4 rounded-lg">
+                            <div>Rear</div>
+                            <div>30</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
